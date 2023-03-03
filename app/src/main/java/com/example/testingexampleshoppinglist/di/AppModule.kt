@@ -2,10 +2,13 @@ package com.example.testingexampleshoppinglist.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.testingexampleshoppinglist.data.local.ShoppingDao
 import com.example.testingexampleshoppinglist.data.local.ShoppingItemDatabase
 import com.example.testingexampleshoppinglist.data.remote.UnsplashApi
 import com.example.testingexampleshoppinglist.data.remote.UnsplashApi.Companion.BASE_URL
 import com.example.testingexampleshoppinglist.other.Constants.DATABASE_NAME
+import com.example.testingexampleshoppinglist.repositories.DefaultShoppingRepository
+import com.example.testingexampleshoppinglist.repositories.ShoppingRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,11 +30,20 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideDefaultShoppingRepository(
+        dao: ShoppingDao,
+        api: UnsplashApi
+    ) = DefaultShoppingRepository(dao, api) as ShoppingRepository
+
+    @Singleton
+    @Provides
     fun provideShoppingDao(
         database: ShoppingItemDatabase
     ) = database.shoppingDao()
 
-    fun providesUnsplashApi(): UnsplashApi {
+    @Singleton
+    @Provides
+    fun provideUnsplashApi(): UnsplashApi {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL)
